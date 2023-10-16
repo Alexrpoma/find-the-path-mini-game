@@ -21,6 +21,16 @@ public class Path {
         this.positions = positions;
     }
 
+    public void addPosition(int row, int column) {
+        positions.add(new Position(row, column));
+    }
+
+    public void deleteLastPosition() {
+        if (!positions.isEmpty()) {
+            positions.remove(positions.size() - 1);
+        }
+    }
+
 
     @Override
     public String toString() {

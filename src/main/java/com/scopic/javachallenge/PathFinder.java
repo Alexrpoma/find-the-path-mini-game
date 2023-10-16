@@ -24,12 +24,66 @@ public class PathFinder {
 
     public Path run() {
         // You can add your own class members here.
-        return new Path();
+        Path path = new Path();
+        List<Integer> codes = this.sequences.get(0).codes;
+        int codeIndex = 0;
+        int sequenceLength = codes.size();
+        int row = 0;
+        int col = 0;
+        finder(codes, sequenceLength, codeIndex, col, row, path);
+        return path;
     }
 
     // You can add your own class members here.
+    private void finder(List<Integer> codes, int sequenceLength, int codeIndex, int col, int row, Path path) {
+        while (codeIndex < sequenceLength) {
+            int code = codes.get(codeIndex);
+            if (codeIndex % 2 == 0) {
+                col = findColInRow(code, matrix, row);
+                if (col != -1) {
+                    path.addPosition(row, col);
+                    codeIndex++;
+                }
+            } else {
+                row = findRowInCol(code, matrix, col);
+                if (row != -1) {
+                    path.addPosition(row, col);
+                    codeIndex++;
+                }
+            }
+            if (row == -1 || col == -1) {
+                path.deleteLastPosition();
+                if (path.positions.isEmpty()) {
+                    row = 0;
+                    col = 0;
+                } else {
+                    Position lastPosition = path.positions.get(path.positions.size() - 1);
+                    row = lastPosition.row;
+                    col = lastPosition.column;
+                }
+                codeIndex--;
+            }
+        }
+    }
 
+    private int findColInRow(int code, Matrix matrix, int row) {
+        for (int col = 0; col < matrix.getColumnCount(); col++) {
+            if (matrix.getValue(row, col) == code) {
+                matrix.values[row][col] = -1;
+                return col;
+            }
+        }
+        return -1;
+    }
 
-
+    private int findRowInCol(int code, Matrix matrix, int col) {
+        for (int row = 0; row < matrix.getRowCount(); row++) {
+            if (matrix.getValue(row, col) == code) {
+                matrix.values[row][col] = -1;
+                return row;
+            }
+        }
+        return -1;
+    }
 
 }
