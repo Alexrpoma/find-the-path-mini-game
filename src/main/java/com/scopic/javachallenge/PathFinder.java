@@ -5,8 +5,6 @@ package com.scopic.javachallenge;
 // YOU CAN ADD YOUR OWN METHODS AND VARIABLES TO THE EXISTING CLASSES AND USE THEM IN YOUR WORK.
 // ---------------------------------------------------------------------------------------------
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class PathFinder {
@@ -18,45 +16,39 @@ public class PathFinder {
         this.matrix = matrix;
         this.sequences = sequences;
         this.maxPathLength = maxPathLength;
-
-       
     }
 
     public Path run() {
-        // You can add your own class members here.
         Path path = new Path();
-        int codeIndex = 0;
-        int row = 0;
-        int col = 0;
         if (sequences.size() == 1) {
-            Sequence sequence = sequences.get(0);
-            List<Integer> codes = sequence.codes;
-            int sequenceLength = codes.size();
-            finder(codes, sequenceLength, codeIndex, col, row, path);
+            findPathForSequence(sequences.get(0), path);
             return path;
         }
         List<Sequence> overlapSequences = SequenceOverlapping.apply(sequences);
         if (overlapSequences != null) {
-            sequencesFinder(overlapSequences, codeIndex, col, row, path);
+            sequencesFinder(overlapSequences, path);
         }
         else {
-            sequencesFinder(sequences, codeIndex, col, row, path);
+            sequencesFinder(sequences, path);
         }
         return path;
     }
 
-    private void sequencesFinder(List<Sequence> overlapSequences, int codeIndex, int col, int row, Path path) {
+    private void sequencesFinder(List<Sequence> overlapSequences, Path path) {
         for (Sequence sequence : overlapSequences) {
-            List<Integer> codes = sequence.codes;
-            int sequenceLength = codes.size();
-            finder(codes, sequenceLength, codeIndex, col, row, path);
+            findPathForSequence(sequence, path);
             // Only the first solution for now
             if (!path.positions.isEmpty()) break;
         }
     }
 
     // You can add your own class members here.
-    private void finder(List<Integer> codes, int sequenceLength, int codeIndex, int col, int row, Path path) {
+    private void findPathForSequence(Sequence sequence, Path path) {
+        List<Integer> codes = sequence.codes;
+        int sequenceLength = codes.size();
+        int codeIndex = 0;
+        int row = 0;
+        int col = 0;
         while (codeIndex < sequenceLength) {
             int code = codes.get(codeIndex);
             if (codeIndex % 2 == 0) {
