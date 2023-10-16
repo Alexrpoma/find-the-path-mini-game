@@ -25,13 +25,34 @@ public class PathFinder {
     public Path run() {
         // You can add your own class members here.
         Path path = new Path();
-        List<Integer> codes = this.sequences.get(0).codes;
         int codeIndex = 0;
-        int sequenceLength = codes.size();
         int row = 0;
         int col = 0;
-        finder(codes, sequenceLength, codeIndex, col, row, path);
+        if (sequences.size() == 1) {
+            Sequence sequence = sequences.get(0);
+            List<Integer> codes = sequence.codes;
+            int sequenceLength = codes.size();
+            finder(codes, sequenceLength, codeIndex, col, row, path);
+            return path;
+        }
+        List<Sequence> overlapSequences = SequenceOverlapping.apply(sequences);
+        if (overlapSequences != null) {
+            sequencesFinder(overlapSequences, codeIndex, col, row, path);
+        }
+        else {
+            sequencesFinder(sequences, codeIndex, col, row, path);
+        }
         return path;
+    }
+
+    private void sequencesFinder(List<Sequence> overlapSequences, int codeIndex, int col, int row, Path path) {
+        for (Sequence sequence : overlapSequences) {
+            List<Integer> codes = sequence.codes;
+            int sequenceLength = codes.size();
+            finder(codes, sequenceLength, codeIndex, col, row, path);
+            // Only the first solution for now
+            if (!path.positions.isEmpty()) break;
+        }
     }
 
     // You can add your own class members here.
