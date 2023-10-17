@@ -5,6 +5,7 @@ package com.scopic.javachallenge;
 // YOU CAN ADD YOUR OWN METHODS AND VARIABLES TO THE EXISTING CLASSES AND USE THEM IN YOUR WORK.
 // ---------------------------------------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PathFinder {
@@ -21,7 +22,10 @@ public class PathFinder {
     public Path run() {
         Path path = new Path();
         if (sequences.size() == 1) {
-            findPathForSequence(sequences.get(0), path);
+            for (int startRow = 0; startRow < matrix.getRowCount(); startRow++) {
+                findPathForSequence(sequences.get(0), path, startRow);
+                if (!path.positions.isEmpty()) break;
+            }
             return path;
         }
         List<Sequence> overlapSequences = SequenceOverlapping.apply(sequences);
@@ -31,29 +35,43 @@ public class PathFinder {
         else {
             sequencesFinder(sequences, path);
         }
+        if (path.positions.size() == maxPathLength) {
+            System.out.println("Max path length reached: " + maxPathLength);
+        }
+        if (path.positions.isEmpty()) {
+            System.out.println("Path: NOT FOUND");
+        }
         return path;
     }
 
     private void sequencesFinder(List<Sequence> overlapSequences, Path path) {
         for (Sequence sequence : overlapSequences) {
-            findPathForSequence(sequence, path);
+            for (int startRow = 0; startRow < matrix.getRowCount(); startRow++) {
+                findPathForSequence(sequence, path, startRow);
+                if (!path.positions.isEmpty()) break;
+            }
             // Only the first solution for now
             if (!path.positions.isEmpty()) break;
         }
     }
 
     // You can add your own class members here.
-    private void findPathForSequence(Sequence sequence, Path path) {
+    private void findPathForSequence(Sequence sequence, Path path, int row) {
         List<Integer> codes = sequence.codes;
         int sequenceLength = codes.size();
         int codeIndex = 0;
-        int row = 0;
         int col = 0;
         while (codeIndex < sequenceLength) {
             int code = codes.get(codeIndex);
             if (codeIndex % 2 == 0) {
                 col = findColInRow(code, matrix, row);
                 if (col != -1) {
+                    if (row > 0 && codeIndex == 0) {
+                        // wasted move
+                        matrix.values[row][col] = code;
+                        addWastedMove(sequence, path, col, codes);
+                        break;
+                    }
                     path.addPosition(row, col);
                     codeIndex++;
                 }
@@ -76,7 +94,17 @@ public class PathFinder {
                 }
                 codeIndex--;
             }
+            if (codeIndex < 0) {
+                break;
+            }
         }
+    }
+
+    private void addWastedMove(Sequence sequence, Path path, int col, List<Integer> codes) {
+        List<Integer> newSequence = new ArrayList<>();
+        newSequence.add(matrix.getValue(0, col));
+        newSequence.addAll(codes);
+        findPathForSequence(new Sequence(newSequence, sequence.score), path, 0);
     }
 
     private int findColInRow(int code, Matrix matrix, int row) {
