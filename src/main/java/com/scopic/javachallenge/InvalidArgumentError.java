@@ -5,5 +5,7 @@ package com.scopic.javachallenge;
 // ---------------------------------------------------------------------------------------------
 
 public class InvalidArgumentError extends  Error{
-    // You can add your own class members here.
+  public InvalidArgumentError(String message){
+    super(message);
+  }
 }

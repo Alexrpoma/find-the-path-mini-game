@@ -22,6 +22,7 @@ public class PathFinder {
     }
 
     public Path run() {
+        dataValidate();
         Path path = new Path();
         List<Sequence> overlapSequences = SequenceOverlapping.apply(sequences);
         sequencesFinder(overlapSequences, path);
@@ -135,6 +136,10 @@ public class PathFinder {
             }
         }
         return -1;
+    }
+
+    private void dataValidate() {
+        DataValidator.apply(matrix, sequences, maxPathLength);
     }
 
 }
