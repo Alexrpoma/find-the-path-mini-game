@@ -37,8 +37,19 @@ public class PathFinder {
         else {
             sequencesFinder(sequences, path);
         }
-        if (path.positions.size() >= maxPathLength) {
-            System.out.println("Max path length reached: " + maxPathLength);
+        if (path.positions.size() > maxPathLength || path.positions.isEmpty()) {
+            path.positions.clear();
+            //Sort sequences by highest score and shortest codes size
+            sequences.sort((seq1, seq2) -> {
+                if (seq1.score == seq2.score) {
+                    return seq1.codes.size() - seq2.codes.size();
+                }
+                return seq2.score - seq1.score;
+            });
+            for (Sequence sequence : sequences) {
+                findPathForSequence(sequence, path, 0);
+                if (!path.positions.isEmpty()) break;
+            }
         }
         if (path.positions.isEmpty()) {
             System.out.println("Path: NOT FOUND");
@@ -71,8 +82,7 @@ public class PathFinder {
                     visitedPositions.put(new Position(row, col), code);
                     if (row > 0 && codeIndex == 0) {
                         // wasted move
-                        matrix.values[row][col] = code;
-                        System.out.println("Wasted move: " + matrix.getValue(0, col));
+                        matrix.values[row][col] = code; // restore first found code in matrix
                         addWastedMove(sequence, path, col, codes);
                         break;
                     }
@@ -103,6 +113,7 @@ public class PathFinder {
                 break;
             }
         }
+        // restore matrix
         visitedPositions.forEach(
             (position, savedCode) -> matrix.values[position.row][position.column] = savedCode
         );
