@@ -46,10 +46,7 @@ public class PathFinder {
                 }
                 return seq2.score - seq1.score;
             });
-            for (Sequence sequence : sequences) {
-                findPathForSequence(sequence, path, 0);
-                if (!path.positions.isEmpty()) break;
-            }
+            sequencesFinder(sequences, path);
         }
         if (path.positions.isEmpty()) {
             System.out.println("Path: NOT FOUND");
@@ -57,8 +54,8 @@ public class PathFinder {
         return path;
     }
 
-    private void sequencesFinder(List<Sequence> overlapSequences, Path path) {
-        for (Sequence sequence : overlapSequences) {
+    private void sequencesFinder(List<Sequence> sequences, Path path) {
+        for (Sequence sequence : sequences) {
             for (int startRow = 0; startRow < matrix.getRowCount(); startRow++) {
                 findPathForSequence(sequence, path, startRow);
                 if (!path.positions.isEmpty()) break;
