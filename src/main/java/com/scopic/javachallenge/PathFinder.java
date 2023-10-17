@@ -61,14 +61,20 @@ public class PathFinder {
         int sequenceLength = codes.size();
         int codeIndex = 0;
         int col = 0;
+        int[][] currentValues = new int[matrix.getRowCount()][matrix.getColumnCount()];
+        for (int i =0; i < matrix.getRowCount(); i++) {
+            for (int j = 0; j < matrix.getColumnCount(); j++) {
+                currentValues[i][j] = matrix.getValue(i, j);
+            }
+        }
+        Matrix currentMatrix = new Matrix(currentValues);
         while (codeIndex < sequenceLength) {
             int code = codes.get(codeIndex);
             if (codeIndex % 2 == 0) {
-                col = findColInRow(code, matrix, row);
+                col = findColInRow(code, currentMatrix, row);
                 if (col != -1) {
                     if (row > 0 && codeIndex == 0) {
                         // wasted move
-                        matrix.values[row][col] = code;
                         addWastedMove(sequence, path, col, codes);
                         break;
                     }
@@ -76,7 +82,7 @@ public class PathFinder {
                     codeIndex++;
                 }
             } else {
-                row = findRowInCol(code, matrix, col);
+                row = findRowInCol(code, currentMatrix, col);
                 if (row != -1) {
                     path.addPosition(row, col);
                     codeIndex++;
