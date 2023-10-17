@@ -6,7 +6,9 @@ package com.scopic.javachallenge;
 // ---------------------------------------------------------------------------------------------
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PathFinder {
     public Matrix matrix;
@@ -35,7 +37,7 @@ public class PathFinder {
         else {
             sequencesFinder(sequences, path);
         }
-        if (path.positions.size() == maxPathLength) {
+        if (path.positions.size() >= maxPathLength) {
             System.out.println("Max path length reached: " + maxPathLength);
         }
         if (path.positions.isEmpty()) {
@@ -55,26 +57,22 @@ public class PathFinder {
         }
     }
 
-    // You can add your own class members here.
     private void findPathForSequence(Sequence sequence, Path path, int row) {
         List<Integer> codes = sequence.codes;
         int sequenceLength = codes.size();
         int codeIndex = 0;
         int col = 0;
-        int[][] currentValues = new int[matrix.getRowCount()][matrix.getColumnCount()];
-        for (int i =0; i < matrix.getRowCount(); i++) {
-            for (int j = 0; j < matrix.getColumnCount(); j++) {
-                currentValues[i][j] = matrix.getValue(i, j);
-            }
-        }
-        Matrix currentMatrix = new Matrix(currentValues);
+        Map<Position, Integer> visitedPositions = new HashMap<>();
         while (codeIndex < sequenceLength) {
             int code = codes.get(codeIndex);
             if (codeIndex % 2 == 0) {
-                col = findColInRow(code, currentMatrix, row);
+                col = findColInRow(code, matrix, row);
                 if (col != -1) {
+                    visitedPositions.put(new Position(row, col), code);
                     if (row > 0 && codeIndex == 0) {
                         // wasted move
+                        matrix.values[row][col] = code;
+                        System.out.println("Wasted move: " + matrix.getValue(0, col));
                         addWastedMove(sequence, path, col, codes);
                         break;
                     }
@@ -82,8 +80,9 @@ public class PathFinder {
                     codeIndex++;
                 }
             } else {
-                row = findRowInCol(code, currentMatrix, col);
+                row = findRowInCol(code, matrix, col);
                 if (row != -1) {
+                    visitedPositions.put(new Position(row, col), code);
                     path.addPosition(row, col);
                     codeIndex++;
                 }
@@ -104,6 +103,9 @@ public class PathFinder {
                 break;
             }
         }
+        visitedPositions.forEach(
+            (position, savedCode) -> matrix.values[position.row][position.column] = savedCode
+        );
     }
 
     private void addWastedMove(Sequence sequence, Path path, int col, List<Integer> codes) {
