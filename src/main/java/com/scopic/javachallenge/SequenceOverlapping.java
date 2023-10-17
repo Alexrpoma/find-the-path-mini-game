@@ -7,9 +7,9 @@ public class SequenceOverlapping {
 
   public static List<Sequence> apply(List<Sequence> sequences) {
 
-    if (sequences.size() > 2) {
+    if (sequences.size() != 2) {
       System.out.println("Overlapping for more than 2 sequences is not supported yet.");
-      return null;
+      return sequences;
     }
 
     List<Integer> sequence1 = sequences.get(0).codes;

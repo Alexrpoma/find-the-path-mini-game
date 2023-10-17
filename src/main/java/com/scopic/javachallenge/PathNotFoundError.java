@@ -7,4 +7,7 @@ package com.scopic.javachallenge;
 public class PathNotFoundError extends  Error{
 
     // You can add your own class members here.
+  public PathNotFoundError(String message){
+    super(message);
+  }
 }

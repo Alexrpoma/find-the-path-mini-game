@@ -23,34 +23,9 @@ public class PathFinder {
 
     public Path run() {
         Path path = new Path();
-        if (sequences.size() == 1) {
-            for (int startRow = 0; startRow < matrix.getRowCount(); startRow++) {
-                findPathForSequence(sequences.get(0), path, startRow);
-                if (!path.positions.isEmpty()) break;
-            }
-            return path;
-        }
         List<Sequence> overlapSequences = SequenceOverlapping.apply(sequences);
-        if (overlapSequences != null) {
-            sequencesFinder(overlapSequences, path);
-        }
-        else {
-            sequencesFinder(sequences, path);
-        }
-        if (path.positions.size() > maxPathLength || path.positions.isEmpty()) {
-            path.positions.clear();
-            //Sort sequences by highest score and shortest codes size
-            sequences.sort((seq1, seq2) -> {
-                if (seq1.score == seq2.score) {
-                    return seq1.codes.size() - seq2.codes.size();
-                }
-                return seq2.score - seq1.score;
-            });
-            sequencesFinder(sequences, path);
-        }
-        if (path.positions.isEmpty()) {
-            System.out.println("Path: NOT FOUND");
-        }
+        sequencesFinder(overlapSequences, path);
+        separateSequenceFinder(path);
         return path;
     }
 
@@ -64,6 +39,25 @@ public class PathFinder {
             if (!path.positions.isEmpty()) break;
         }
     }
+
+    private void separateSequenceFinder(Path path) {
+        if (path.positions.size() > maxPathLength || path.positions.isEmpty()) {
+            path.positions.clear();
+            //Sort sequences by highest score and shortest codes size
+            sequences.sort((seq1, seq2) -> {
+                if (seq1.score == seq2.score) {
+                    return seq1.codes.size() - seq2.codes.size();
+                }
+                return seq2.score - seq1.score;
+            });
+            sequencesFinder(sequences, path);
+        }
+        if (path.positions.isEmpty()) {
+            System.out.println("Path not found");
+            throw new PathNotFoundError("Path not found");
+        }
+    }
+
 
     private void findPathForSequence(Sequence sequence, Path path, int row) {
         List<Integer> codes = sequence.codes;
