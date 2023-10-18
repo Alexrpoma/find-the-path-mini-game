@@ -7,62 +7,71 @@ public class SequenceOverlapping {
 
   public static List<Sequence> apply(List<Sequence> sequences) {
 
+    List<Sequence> finalResult;
+
     if (sequences.size() != 2) {
       System.out.println("Overlapping for more than 2 sequences is not supported yet.");
       return sequences;
     }
 
-    List<Integer> sequence1 = sequences.get(0).codes;
-    List<Integer> sequence2 = sequences.get(1).codes;
-    List<Integer> result1 = new ArrayList<>();
-    List<Integer> result2 = new ArrayList<>();
-    List<Sequence> finalResult = new ArrayList<>();
-    int totalScore = sequences.get(0).score + sequences.get(1).score;
+    finalResult = combiningTwoSequences(sequences);
 
-    if (sequence1.contains(sequence2.get(0))) {
-      result1 = overlappingTwoSequences(sequence1, sequence2);
+    if (finalResult.isEmpty()) {
+      System.out.println("Overlapping: IMPOSSIBLE");
+      int totalScore = sequences.get(0).score + sequences.get(1).score;
+      //Concatenate the codes of the first sequence and then the codes of the second sequence
+      List<Integer> joinedCodes1 = new ArrayList<>();
+      joinedCodes1.addAll(sequences.get(0).codes);
+      joinedCodes1.addAll(sequences.get(1).codes);
+      finalResult.add(new Sequence(joinedCodes1, totalScore));
+      //Concatenate the codes of the second sequence and then the codes of the first sequence
+      List<Integer> joinedCodes2 = new ArrayList<>();
+      joinedCodes2.addAll(sequences.get(1).codes);
+      joinedCodes2.addAll(sequences.get(0).codes);
+      finalResult.add(new Sequence(joinedCodes2, totalScore));
     }
-    if (sequence2.contains(sequence1.get(0))) {
-      result2 = overlappingTwoSequences(sequence2, sequence1);
-    }
-    if (!result1.isEmpty() || !result2.isEmpty()) {
-      if (!result1.isEmpty()) finalResult.add(new Sequence(result1, totalScore));
-      if (!result2.isEmpty()) finalResult.add(new Sequence(result2, totalScore));
-      return finalResult;
-    }
-    System.out.println("Overlapping: IMPOSSIBLE");
-    result1.addAll(sequence1);
-    result1.addAll(sequence2);
-    finalResult.add(new Sequence(result1, totalScore));
-    result2.addAll(sequence2);
-    result2.addAll(sequence1);
-    finalResult.add(new Sequence(result2, totalScore));
+
     return finalResult;
   }
 
-  private static List<Integer> overlappingTwoSequences(List<Integer> sequence1, List<Integer> sequence2) {
-    List<Integer> result = new ArrayList<>();
-    for (int i = 0; i < sequence1.size(); i++) {
-      if (sequence1.get(i).equals(sequence2.get(0))) {
-        List<Integer> sliceSeq1 = sequence1.subList(i, sequence1.size());
-        List<Integer> sliceSeq2;
-        if (sliceSeq1.size() > sequence2.size()) {
-          sliceSeq1 = sliceSeq1.subList(0, sequence2.size());
-          if (sliceSeq1.equals(sequence2)) {
-            result.addAll(sequence1);
-            break;
+  private static List<Sequence> combiningTwoSequences(List<Sequence> sequences) {
+    List<Sequence> result = new ArrayList<>();
+    List<Integer> codesSeq1 = sequences.get(0).codes;
+    List<Integer> codesSeq2 = sequences.get(1).codes;
+    if (codesSeq1.contains(codesSeq2.get(0))) {
+      Sequence sequence = overlappingTwoSequences(sequences.get(0), sequences.get(1));
+      if (sequence != null) result.add(sequence);
+    }
+    if (codesSeq2.contains(codesSeq1.get(0))) {
+      Sequence sequence = overlappingTwoSequences(sequences.get(1), sequences.get(0));
+      if (sequence != null) result.add(sequence);
+    }
+    return result;
+  }
+
+  private static Sequence overlappingTwoSequences(Sequence sequence1, Sequence sequence2) {
+    for (int i = 0; i < sequence1.codes.size(); i++) {
+      if (sequence1.codes.get(i).equals(sequence2.codes.get(0))) {
+        List<Integer> subListCodesSeq1 = sequence1.codes.subList(i, sequence1.codes.size());
+        List<Integer> subListsCodesSeq2;
+        if (subListCodesSeq1.size() > sequence2.codes.size()) {
+          List<Integer> shortestSubListCodesSeq1 = subListCodesSeq1.subList(0, sequence2.codes.size());
+          if (shortestSubListCodesSeq1.equals(sequence2.codes)) {
+            sequence1.score = sequence1.score + sequence2.score;
+            return sequence1;
           }
         }
         else {
-          sliceSeq2 = sequence2.subList(0, sliceSeq1.size());
-          if (sliceSeq1.equals(sliceSeq2)) {
-            result.addAll(sequence1.subList(0, i));
-            result.addAll(sequence2);
-            break;
+          subListsCodesSeq2 = sequence2.codes.subList(0, subListCodesSeq1.size());
+          if (subListCodesSeq1.equals(subListsCodesSeq2)) {
+            List<Integer> totalCodes = new ArrayList<>();
+            totalCodes.addAll(sequence1.codes);
+            totalCodes.addAll(sequence2.codes.subList(subListCodesSeq1.size(), sequence2.codes.size()));
+            return new Sequence(totalCodes, sequence1.score + sequence2.score);
           }
         }
       }
     }
-    return result;
+    return null;
   }
 }
