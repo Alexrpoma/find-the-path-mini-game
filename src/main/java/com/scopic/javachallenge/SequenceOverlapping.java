@@ -34,7 +34,6 @@ public class SequenceOverlapping {
     result = combiningTwoSequences(sequences);
 
     if (result.isEmpty()) {
-      System.out.println("Overlapping: IMPOSSIBLE");
       int totalScore = sequences.get(0).score + sequences.get(1).score;
       //Concatenate the codes of the first sequence and then the codes of the second sequence
       List<Integer> joinedCodes1 = new ArrayList<>();
