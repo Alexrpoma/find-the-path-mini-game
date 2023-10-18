@@ -24,35 +24,66 @@ public class PathFinder {
     public Path run() {
         dataValidate();
         Path path = new Path();
-        List<Sequence> overlapSequences = SequenceOverlapping.apply(sequences);
-        sequencesFinder(overlapSequences, path);
-        separateSequenceFinder(path);
+        sequencesFinder(SequenceOverlapping.apply(sequences), path);
+        if (path.positions.size() > maxPathLength || path.positions.isEmpty()) {
+            separateSequenceFinder(path);
+        }
         return path;
     }
 
-    private void sequencesFinder(List<Sequence> sequences, Path path) {
+    private Sequence sequencesFinder(List<Sequence> sequences, Path path) {
         for (Sequence sequence : sequences) {
             for (int startRow = 0; startRow < matrix.getRowCount(); startRow++) {
                 findPathForSequence(sequence, path, startRow);
-                if (!path.positions.isEmpty()) break;
+                if (!path.positions.isEmpty()) return sequence;
             }
-            // Only the first solution for now
-            if (!path.positions.isEmpty()) break;
         }
+        return null;
     }
 
     private void separateSequenceFinder(Path path) {
-        if (path.positions.size() > maxPathLength || path.positions.isEmpty()) {
+        path.positions.clear();
+        //Sort sequences by highest score and shortest codes size
+        sequences.sort((seq1, seq2) -> {
+            if (seq1.score == seq2.score) {
+                return seq1.codes.size() - seq2.codes.size();
+            }
+            return seq2.score - seq1.score;
+        });
+
+        Sequence sequenceWithSolution = sequencesFinder(sequences, path);
+
+        //Here we try to find a path joining two sequences through wasted moves
+        if (sequenceWithSolution != null) {
+            List<Position> path1 = new ArrayList<>(path.positions);
             path.positions.clear();
-            //Sort sequences by highest score and shortest codes size
-            sequences.sort((seq1, seq2) -> {
-                if (seq1.score == seq2.score) {
-                    return seq1.codes.size() - seq2.codes.size();
+            for (Sequence sequence : sequences) {
+                if (!sequence.equals(sequenceWithSolution)) {
+                    List<Sequence> sequences = new ArrayList<>();
+                    sequences.add(sequence);
+                    sequencesFinder(sequences, path);
                 }
-                return seq2.score - seq1.score;
-            });
-            sequencesFinder(sequences, path);
+            }
+            if (!path.positions.isEmpty()) {
+                List<Position> path2 = new ArrayList<>(path.positions);
+                if (!path1.get(path1.size() - 1).equals(path2.get(0))) {
+                    Position positionConnector = new Position(path2.get(0).row, path1.get(path1.size() - 1).column);
+                    if (!path1.contains(positionConnector) && !path2.contains(positionConnector)) {
+                        path.positions.clear();
+                        path.positions.addAll(path1);
+                        path.positions.add(positionConnector);
+                        path.positions.addAll(path2);
+                        if (path.positions.size() > maxPathLength) {
+                            path.positions.clear();
+                            path.positions.addAll(path1);
+                        }
+                    }
+                }
+            } else {
+                path.positions.addAll(path1);
+            }
         }
+        //--------------------------------------------------------------------
         if (path.positions.isEmpty()) {
             System.out.println("Path not found");
             throw new PathNotFoundError("Path not found");

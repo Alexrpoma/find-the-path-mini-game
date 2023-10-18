@@ -7,31 +7,47 @@ public class SequenceOverlapping {
 
   public static List<Sequence> apply(List<Sequence> sequences) {
 
-    List<Sequence> finalResult;
+    List<Sequence> result;
 
-    if (sequences.size() != 2) {
-      System.out.println("Overlapping for more than 2 sequences is not supported yet.");
+    if (sequences.size() == 1) {
       return sequences;
     }
 
-    finalResult = combiningTwoSequences(sequences);
+    if (sequences.size() > 2) {
+      for (int i = 0; i < sequences.size() -1; i++) {
+        for (int j =1; j < sequences.size(); j++) {
+          List<Sequence> sequencesToCombine = new ArrayList<>();
+          sequencesToCombine.add(sequences.get(i));
+          sequencesToCombine.add(sequences.get(j));
+          List<Sequence> combinedSequences = combiningTwoSequences(sequencesToCombine);
+          if (!combinedSequences.isEmpty()) {
+            sequences.remove(i);
+            sequences.remove(j-1);
+            sequences.add(combinedSequences.get(0));
+            return apply(sequences);
+          }
+        }
+      }
+      return sequences;
+    }
 
-    if (finalResult.isEmpty()) {
+    result = combiningTwoSequences(sequences);
+
+    if (result.isEmpty()) {
       System.out.println("Overlapping: IMPOSSIBLE");
       int totalScore = sequences.get(0).score + sequences.get(1).score;
       //Concatenate the codes of the first sequence and then the codes of the second sequence
       List<Integer> joinedCodes1 = new ArrayList<>();
       joinedCodes1.addAll(sequences.get(0).codes);
       joinedCodes1.addAll(sequences.get(1).codes);
-      finalResult.add(new Sequence(joinedCodes1, totalScore));
+      result.add(new Sequence(joinedCodes1, totalScore));
       //Concatenate the codes of the second sequence and then the codes of the first sequence
       List<Integer> joinedCodes2 = new ArrayList<>();
       joinedCodes2.addAll(sequences.get(1).codes);
       joinedCodes2.addAll(sequences.get(0).codes);
-      finalResult.add(new Sequence(joinedCodes2, totalScore));
+      result.add(new Sequence(joinedCodes2, totalScore));
     }
-
-    return finalResult;
+    return result;
   }
 
   private static List<Sequence> combiningTwoSequences(List<Sequence> sequences) {
