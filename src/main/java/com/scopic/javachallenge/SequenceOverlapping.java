@@ -3,11 +3,12 @@ package com.scopic.javachallenge;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is used to overlay multiple sequences.
+ */
 public class SequenceOverlapping {
 
   public static List<Sequence> apply(List<Sequence> sequences) {
-
-    List<Sequence> result;
 
     if (sequences.size() == 1) {
       return sequences;
@@ -31,16 +32,17 @@ public class SequenceOverlapping {
       return sequences;
     }
 
-    result = combiningTwoSequences(sequences);
+    List<Sequence> result = combiningTwoSequences(sequences);
 
     if (result.isEmpty()) {
+      //If there is no overlapping between the two sequences, we concatenate them in two different ways.
       int totalScore = sequences.get(0).score + sequences.get(1).score;
-      //Concatenate the codes of the first sequence and then the codes of the second sequence
+      //Concatenate the codes of the first sequence and then the codes of the second sequence.
       List<Integer> joinedCodes1 = new ArrayList<>();
       joinedCodes1.addAll(sequences.get(0).codes);
       joinedCodes1.addAll(sequences.get(1).codes);
       result.add(new Sequence(joinedCodes1, totalScore));
-      //Concatenate the codes of the second sequence and then the codes of the first sequence
+      //Concatenate the codes of the second sequence and then the codes of the first sequence.
       List<Integer> joinedCodes2 = new ArrayList<>();
       joinedCodes2.addAll(sequences.get(1).codes);
       joinedCodes2.addAll(sequences.get(0).codes);

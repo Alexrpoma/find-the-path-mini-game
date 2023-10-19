@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class is used to find the shortest path with the highest score for a given matrix and a list of sequences.
+ */
 public class PathFinder {
     public Matrix matrix;
     public List<Sequence> sequences;
@@ -85,7 +88,6 @@ public class PathFinder {
         }
         //--------------------------------------------------------------------
         if (path.positions.isEmpty()) {
-            System.out.println("Path not found");
             throw new PathNotFoundError("Path not found");
         }
     }
